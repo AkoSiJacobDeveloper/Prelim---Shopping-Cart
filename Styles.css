@@ -1,0 +1,74 @@
+* {
+    font-family: 'Poppins';
+}
+
+main {
+    box-sizing: border-box;
+}
+
+.form-container {
+    box-sizing: border-box;
+    border: 1px solid black;
+}
+
+form input {
+    box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
+    border: none;
+}
+
+
+.addCart {
+    background-color: #20c997;
+}
+
+.checkout-container {
+    border-top: 1px solid black;
+    border-right: 1px solid black;
+    border-bottom: 1px solid black;
+}
+
+.item {
+    padding: 0px 5px;
+    height: 185px;
+    overflow-y: auto;
+}
+.item-wrapper {
+    /* box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px; */
+    padding: 13px;
+    box-sizing: border-box;
+    display: flex;
+    justify-content: space-between;
+    border-radius: 5px;
+    border-bottom: 1px solid black;
+}
+
+.edit-btn, .delete-btn {
+    border: none;
+    background: none;
+    color: #fff;
+    padding: 2px 15px;
+    border-radius: 5px;
+}
+
+.edit-btn {
+    background-color: #198754;
+}
+
+.delete-btn {
+    background-color: #f00e0e;
+}
+
+.btn-wrapper {
+    display: flex;
+    gap: 10px;
+}
+
+.wrapper {
+    display: flex;
+    justify-content: space-between;
+}
+
+.checkoutBtn {
+    width: 70%;
+    background-color: #007bff;
+}
