@@ -16,6 +16,10 @@ form input {
     border: none;
 }
 
+#town, #payment-method {
+    border: none;
+}
+
 
 .addCart {
     background-color: #20c997;
@@ -29,7 +33,7 @@ form input {
 
 .item {
     padding: 0px 5px;
-    height: 185px;
+    height: 315px;
     overflow-y: auto;
 }
 .item-wrapper {
