@@ -1,19 +1,21 @@
 const townPrices = {
-    'town1': 50.00, 
+    'town1': 50.00,
     'town2': 75.00,
     'town3': 100.00
 };
 
-const checkoutSummary = document.getElementById('checkout-wrapper');
 const itemContainer = document.getElementById('items');
 
-// Running total variable to accumulate total price
-let runningTotal = 0;
+// Variables to store total amounts
+let totalAmount = 0;
+let shippingFee = 0;
+let overallTotal = 0;
 
-// Function to update the total amount displayed
-function updateTotal() {
-    const totalText = document.getElementById('total-amount');
-    totalText.textContent = `Total: ₱${runningTotal.toFixed(2)}`;
+// Function to update the displayed totals
+function updateTotals() {
+    document.getElementById('total-amount').textContent = `Total: ₱${totalAmount.toFixed(2)}`;
+    document.getElementById('shipping-fee').textContent = `Shipping Fee: ₱${shippingFee.toFixed(2)}`;
+    document.getElementById('overall-total').textContent = `Overall Total: ₱${overallTotal.toFixed(2)}`;
 }
 
 // Get the input from user
@@ -40,31 +42,33 @@ form.addEventListener('submit', function(event) {
         return;
     }
 
-    // Get the town price
-    const townPrice = townPrices[town] || 0; // Default to 0 if town is not found
+    // Get the town price (shipping fee)
+    const townPrice = townPrices[town] || 0;
 
-    // Calculate the total price for the item
-    const totalItemPrice = (price * quantity) + townPrice;
+    // Calculate the total price for the item (price * quantity)
+    const totalItemPrice = (price * quantity);
+    const totalWithShipping = totalItemPrice + townPrice;
 
-    // Create a new element that will hold the details
+    // Create a new element that will hold the item details
     const itemValues = document.createElement('p');
-    itemValues.textContent = `${name} - ₱${(price + townPrice).toFixed(2)} x ${quantity} (Town: ${town}, Payment: ${paymentMethod})`;
+    itemValues.textContent = `${name} - Price: ₱${price.toFixed(2)} x ${quantity} = ₱${totalItemPrice.toFixed(2)} + Shipping: ₱${townPrice.toFixed(2)} (Total: ₱${totalWithShipping.toFixed(2)}) - Town: ${town}, Payment: ${paymentMethod}`;
     itemValues.style.margin = 0;
     itemValues.classList.add('details');
 
-    // Checkbox
+    // Create buttons and checkbox for the item
     const checkbox = document.createElement('input');
     checkbox.type = 'checkbox';
 
-    // Edit Button
     const editBtn = document.createElement('button');
     editBtn.textContent = 'Edit';
     editBtn.classList.add('edit-btn');
 
-    // Delete Button
     const deleteBtn = document.createElement('button');
     deleteBtn.textContent = 'Delete';
     deleteBtn.classList.add('delete-btn');
+
+    // Flag to track if item was previously checked
+    let wasChecked = false;
 
     // Edit Button functionality
     editBtn.addEventListener('click', () => {
@@ -75,55 +79,89 @@ form.addEventListener('submit', function(event) {
         document.getElementById('payment-method').value = paymentMethod;
 
         document.getElementById('items').removeChild(itemWrapper);
-        // Subtract this item from total when editing
-        runningTotal -= totalItemPrice;
-        updateTotal();
+
+        // Adjust totals when editing
+        if (wasChecked) {
+            totalAmount -= totalItemPrice;
+            shippingFee -= townPrice;
+            overallTotal = totalAmount + shippingFee;
+            updateTotals();
+        }
     });
 
     // Delete Button functionality
     deleteBtn.addEventListener('click', () => {
         document.getElementById('items').removeChild(itemWrapper);
-        // Subtract this item from total when deleted
-        runningTotal -= totalItemPrice;
-        updateTotal();
+
+        // Adjust totals when deleting
+        if (wasChecked) {
+            totalAmount -= totalItemPrice;
+            shippingFee -= townPrice;
+            overallTotal = totalAmount + shippingFee;
+            updateTotals();
+        }
     });
 
-    // Div or container that will hold the two buttons as well as the checkbox
+    // Checkbox functionality to adjust totals when selected
+    checkbox.addEventListener('change', () => {
+        if (checkbox.checked) {
+            if (!wasChecked) {
+                totalAmount += totalItemPrice;
+                shippingFee += townPrice;
+                overallTotal += totalItemPrice + townPrice; // Add this item's total
+                wasChecked = true;
+            }
+        } else {
+            if (wasChecked) {
+                totalAmount -= totalItemPrice;
+                shippingFee -= townPrice;
+                overallTotal -= totalItemPrice + townPrice; // Subtract this item's total
+                wasChecked = false;
+            }
+        }
+        updateTotals();
+    });
+
+    // Create div that will hold the buttons and checkbox
     const btnContainer = document.createElement('div');
     btnContainer.classList.add('btn-wrapper');
 
-    // Append the buttons inside the container
     btnContainer.appendChild(checkbox);
     btnContainer.appendChild(editBtn);
     btnContainer.appendChild(deleteBtn);
 
-    // It will contain the Item name, price, and quantity
+    // Create wrapper for the item and append to items container
     const itemWrapper = document.createElement('div');
     itemWrapper.classList.add('item-wrapper');
-
-    // Update the running total
-    runningTotal += totalItemPrice;
-    updateTotal();
-
-    // Append elements to the item wrapper
     itemWrapper.appendChild(itemValues);
     itemWrapper.appendChild(btnContainer);
+
     itemContainer.appendChild(itemWrapper);
 
-    // The form will reset when the add cart button is clicked
+    // Mark as not checked initially
+    wasChecked = checkbox.checked;
+
+    // Clear inputs
     form.reset();
 });
 
-// Checkout Button Functionality
+// Checkout button functionality
 const checkoutBtn = document.getElementById('checkoutBtn');
 checkoutBtn.addEventListener('click', () => {
-    const checkboxes = document.querySelectorAll('#items input[type="checkbox"]');
-    const anyChecked = Array.from(checkboxes).some(checkbox => checkbox.checked);
+    alert(`Your overall total is: ₱${overallTotal.toFixed(2)}`);
+    alert('Proceeding to Checkout!');
+    alert('Checkout successfully!');
 
-    if (!anyChecked) {
-        alert('Please select at least one item to checkout.');
-    } else {
-        alert('Proceeding to checkout.');
-        alert('Checked out successfully!');
-    }
+    // Remove checked items from the DOM
+    const checkedItems = document.querySelectorAll('#items .item-wrapper input[type="checkbox"]:checked');
+    checkedItems.forEach(checkbox => {
+        const itemWrapper = checkbox.closest('.item-wrapper');
+        itemContainer.removeChild(itemWrapper);
+    });
+
+    // Update totals after removing checked items
+    totalAmount = 0;
+    shippingFee = 0;
+    overallTotal = 0;
+    updateTotals();
 });
